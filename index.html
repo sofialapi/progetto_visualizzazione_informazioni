@@ -81,6 +81,7 @@
 
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    //funzioni di scaling
     const xScale = d3.scaleLinear()
       .domain([0, d3.max(data, d => d.v1)])
       .range([0, innerWidth]);
@@ -126,6 +127,29 @@
 
     const tooltip = document.getElementById("tooltip");
 
+    // aggiungo una griglia orizzontale
+    const yGrid = g.append("g")
+      .attr("class", "grid")
+      .call(d3.axisLeft(yScale)
+        .tickSize(-innerWidth)
+        .tickFormat(""))
+      .call(g => g.select(".domain").remove()) // rimuovo la linea asse Y più marcata in alto che non mi piace
+      .selectAll("line")
+      .attr("stroke", "#ccc")
+      .attr("stroke-dasharray", "3,3");
+
+    // aggiungo una griglia verticale
+    const xGrid = g.append("g")
+      .attr("class", "grid")
+      .attr("transform", `translate(0,${innerHeight})`)
+      .call(d3.axisBottom(xScale)
+        .tickSize(-innerHeight)
+        .tickFormat(""))
+      .call(g => g.select(".domain").remove()) // rimuovo la linea asse X più marcata a destra
+      .selectAll("line")
+      .attr("stroke", "#ccc")
+      .attr("stroke-dasharray", "3,3");
+
     const circles = g.selectAll("circle")
       .data(data, d => d.id)
       .enter()
@@ -147,6 +171,7 @@
         tooltip.innerHTML = "Passa il mouse su un cerchio per scoprire i dettagli";
       });
 
+    //funzione che implementa la transizione graduale tra le visualizzazioni
     function updateCircles() {
       const radiusVar = useV3 ? "v3" : "v4";
       rScale.domain(d3.extent(data, d => d[radiusVar]));
